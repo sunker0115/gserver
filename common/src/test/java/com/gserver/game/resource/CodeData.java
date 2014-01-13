@@ -1,6 +1,7 @@
 package com.gserver.game.resource;
 
 import com.gserver.resource.IResourceMark;
+import com.gserver.resource.ResourceManager;
 
 public class CodeData implements IResourceMark {
 	private int id;
@@ -25,6 +26,7 @@ public class CodeData implements IResourceMark {
 	@Override
 	public void handle() {
 		System.out.println("CodeData: " + this);
+		ResourceManager.getManager().getPool(CodeData.class).putKey(getMac(), this);
 	}
 
 	@Override

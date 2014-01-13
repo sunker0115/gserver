@@ -1,8 +1,12 @@
 package com.gserver.resource;
 
+import java.util.Collection;
 import java.util.Map;
 
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multiset;
 import com.google.common.collect.Table;
 
 public class ResourceManager {
@@ -35,6 +39,27 @@ public class ResourceManager {
 
 	public void put(IResourceMark resource) {
 		dataById.put(resource.getClass(), resource.getId(), resource);
+	}
+
+	private final Table<Class<? extends IResourceMark>, Object, Multiset<IResourceMark>> keyDic = HashBasedTable.create();
+
+	public <T> void putKey(T key, IResourceMark resource) {
+		Map<Object, Multiset<IResourceMark>> row = keyDic.row(resource.getClass());
+		if (row == null) {
+			row = Maps.newHashMap();
+		}
+		Multiset<IResourceMark> multiset = row.get(key);
+		if (multiset == null) {
+			multiset = HashMultiset.create();
+		}
+		multiset.add(resource);
+		keyDic.put(resource.getClass(), key, multiset);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> Collection<IResourceMark> getByKey(T key) {
+		Class<?> cls = choosePool.get();
+		return keyDic.row((Class<? extends IResourceMark>) cls).get(key);
 	}
 
 	public void check() {
