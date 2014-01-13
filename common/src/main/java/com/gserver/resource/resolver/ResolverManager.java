@@ -10,7 +10,7 @@ import com.gserver.resource.resolver.impl.XlsResolver;
 public class ResolverManager {
 
 	public static ResolverManager instance = new ResolverManager();
-	private static ConcurrentMap<Object, ResourceResolver> map = Maps.newConcurrentMap();
+	private static ConcurrentMap<String, ResourceResolver> map = Maps.newConcurrentMap();
 
 	static {
 		try {

@@ -97,4 +97,9 @@ public class ConditionData implements IResourceMark {
 		return builder.toString();
 	}
 
+	@Override
+	public void checkResource() {
+		
+	}
+
 }

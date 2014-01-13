@@ -40,4 +40,9 @@ public class CodeData implements IResourceMark {
 		return builder.toString();
 	}
 
+	@Override
+	public void checkResource() {
+
+	}
+
 }

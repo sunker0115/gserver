@@ -13,6 +13,7 @@ public class ServerBootstrap {
 		
 		
 		ConditionData data = ResourceManager.getManager().getPool(ConditionData.class).getById(1);
+		ResourceManager.getManager().getPool(ConditionData.class).getByKey("0c771a45397a");
 		System.out.println(data);
 
 	}

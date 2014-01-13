@@ -8,7 +8,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Table;
 
 public class ResourceManager {
-	
+
 	private final static ThreadLocal<Class<?>> choosePool = new ThreadLocal<Class<?>>();
 
 	private static ResourceManager instance = new ResourceManager();
@@ -44,8 +44,12 @@ public class ResourceManager {
 	public <T> void putKey(T key, IResourceMark resource) {
 		keyDic.put(key, resource);
 	}
-	
+
 	public <T> Collection<IResourceMark> getByKey(T key) {
 		return keyDic.get(key);
+	}
+
+	public void check() {
+		
 	}
 }
