@@ -1,10 +1,8 @@
 package com.gserver.resource;
 
-import java.util.Collection;
+import java.util.Map;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Table;
 
 public class ResourceManager {
@@ -35,21 +33,16 @@ public class ResourceManager {
 		return iResourceMark;
 	}
 
-	private final Multimap<Object, IResourceMark> keyDic = ArrayListMultimap.create();
-
 	public void put(IResourceMark resource) {
 		dataById.put(resource.getClass(), resource.getId(), resource);
 	}
 
-	public <T> void putKey(T key, IResourceMark resource) {
-		keyDic.put(key, resource);
-	}
-
-	public <T> Collection<IResourceMark> getByKey(T key) {
-		return keyDic.get(key);
-	}
-
 	public void check() {
-		
+		Map<Class<? extends IResourceMark>, Map<Integer, IResourceMark>> rowMap = dataById.rowMap();
+		for (Map.Entry<Class<? extends IResourceMark>, Map<Integer, IResourceMark>> entry : rowMap.entrySet()) {
+			for (Map.Entry<Integer, IResourceMark> subEntry : entry.getValue().entrySet()) {
+				subEntry.getValue().checkResource();
+			}
+		}
 	}
 }
