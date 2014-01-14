@@ -5,10 +5,10 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>gserver-parent</artifactId>
-		<groupId>io.gserver</groupId>
+		<groupId>com.gserver</groupId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<groupId>io.gserver</groupId>
+	<groupId>com.gserver</groupId>
 	<artifactId>gserver-common</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>gserver/common</name>
