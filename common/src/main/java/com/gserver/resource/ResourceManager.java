@@ -12,8 +12,6 @@ import com.google.common.util.concurrent.AbstractIdleService;
 
 public class ResourceManager extends AbstractIdleService {
 
-	public static volatile boolean running = false;
-
 	private final static ThreadLocal<Class<?>> choosePool = new ThreadLocal<Class<?>>();
 
 	private static ResourceManager instance = new ResourceManager();
@@ -76,11 +74,9 @@ public class ResourceManager extends AbstractIdleService {
 
 	@Override
 	protected void shutDown() throws Exception {
-		running = false;
 	}
 
 	@Override
 	protected void startUp() throws Exception {
-		running = true;
 	}
 }

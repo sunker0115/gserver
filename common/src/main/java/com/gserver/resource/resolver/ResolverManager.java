@@ -9,8 +9,6 @@ import com.gserver.resource.resolver.impl.XlsResolver;
 
 public class ResolverManager extends AbstractIdleService {
 
-	public static volatile boolean running = false;
-
 	public static ResolverManager instance = new ResolverManager();
 	private Map<String, ResourceResolver> map = Maps.newConcurrentMap();
 
@@ -33,14 +31,12 @@ public class ResolverManager extends AbstractIdleService {
 	@Override
 	protected void shutDown() throws Exception {
 		map.clear();
-		running = false;
 	}
 
 	@Override
 	protected void startUp() throws Exception {
 		TxtResolver.class.newInstance();
 		XlsResolver.class.newInstance();
-		running = true;
 	}
 
 }

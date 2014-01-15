@@ -10,8 +10,6 @@ import com.gserver.condition.impl.OrCondition;
 
 public class ConditionManager extends AbstractIdleService {
 
-	public static volatile boolean running = false;
-
 	private Map<Short, ICondition> map = Maps.newConcurrentMap();
 
 	private static ConditionManager instance = new ConditionManager();
@@ -39,7 +37,6 @@ public class ConditionManager extends AbstractIdleService {
 	@Override
 	protected void shutDown() throws Exception {
 		map.clear();
-		running = false;
 	}
 
 	@Override
@@ -47,6 +44,5 @@ public class ConditionManager extends AbstractIdleService {
 		AndCondition.class.newInstance();
 		NoCondition.class.newInstance();
 		OrCondition.class.newInstance();
-		running = true;
 	}
 }
