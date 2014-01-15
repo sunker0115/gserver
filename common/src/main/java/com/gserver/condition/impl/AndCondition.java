@@ -34,7 +34,7 @@ public class AndCondition extends BaseCondition {
 		int[] codes = stringToIntArray(str);
 		int length = codes.length;
 		for (int i = 0; i < length; i++) {
-			ConditionData data = ResourceManager.getManager().getPool(ConditionData.class).getById(codes[i]);
+			ConditionData data = ResourceManager.getInstance().getPool(ConditionData.class).getById(codes[i]);
 			ICondition condition = ConditionManager.instance().getCondition(data.getType());
 			if (condition == null) {
 				System.out.println("condition(" + data.getType() + ")不存在!");

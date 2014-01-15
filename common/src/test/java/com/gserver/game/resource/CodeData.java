@@ -26,7 +26,7 @@ public class CodeData implements IResourceMark {
 	@Override
 	public void handle() {
 		System.out.println("CodeData: " + this);
-		ResourceManager.getManager().getPool(CodeData.class).putKey(getMac(), this);
+		ResourceManager.getInstance().getPool(CodeData.class).putKey(getMac(), this);
 	}
 
 	@Override

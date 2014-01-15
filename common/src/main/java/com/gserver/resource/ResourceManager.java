@@ -8,8 +8,11 @@ import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Table;
+import com.google.common.util.concurrent.AbstractIdleService;
 
-public class ResourceManager {
+public class ResourceManager extends AbstractIdleService {
+
+	public static volatile boolean running = false;
 
 	private final static ThreadLocal<Class<?>> choosePool = new ThreadLocal<Class<?>>();
 
@@ -19,7 +22,7 @@ public class ResourceManager {
 		super();
 	}
 
-	public final static ResourceManager getManager() {
+	public final static ResourceManager getInstance() {
 		return instance;
 	}
 
@@ -69,5 +72,15 @@ public class ResourceManager {
 				subEntry.getValue().checkResource();
 			}
 		}
+	}
+
+	@Override
+	protected void shutDown() throws Exception {
+		running = false;
+	}
+
+	@Override
+	protected void startUp() throws Exception {
+		running = true;
 	}
 }

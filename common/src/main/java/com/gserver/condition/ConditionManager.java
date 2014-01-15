@@ -3,20 +3,25 @@ package com.gserver.condition;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.AbstractIdleService;
 import com.gserver.condition.impl.AndCondition;
 import com.gserver.condition.impl.NoCondition;
 import com.gserver.condition.impl.OrCondition;
 
-public class ConditionManager {
+public class ConditionManager extends AbstractIdleService {
 
-	private static ConditionManager instance = null;
+	public static volatile boolean running = false;
+
 	private Map<Short, ICondition> map = Maps.newConcurrentMap();
 
-	public ConditionManager() {
-		if (instance != null) {
-			throw new RuntimeException("DummyServer has already been instantiated.");
-		}
-		instance = this;
+	private static ConditionManager instance = new ConditionManager();
+
+	private ConditionManager() {
+		super();
+	}
+
+	public final static ConditionManager getInstance() {
+		return instance;
 	}
 
 	public static ConditionManager instance() {
@@ -31,15 +36,17 @@ public class ConditionManager {
 		return map.get((short) type);
 	}
 
-	static {
-		try {
-			AndCondition.class.newInstance();
-			NoCondition.class.newInstance();
-			OrCondition.class.newInstance();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		}
+	@Override
+	protected void shutDown() throws Exception {
+		map.clear();
+		running = false;
+	}
+
+	@Override
+	protected void startUp() throws Exception {
+		AndCondition.class.newInstance();
+		NoCondition.class.newInstance();
+		OrCondition.class.newInstance();
+		running = true;
 	}
 }

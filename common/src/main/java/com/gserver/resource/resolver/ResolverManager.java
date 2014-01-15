@@ -1,33 +1,24 @@
 package com.gserver.resource.resolver;
 
-import java.util.concurrent.ConcurrentMap;
+import java.util.Map;
 
 import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.AbstractIdleService;
 import com.gserver.resource.resolver.impl.TxtResolver;
 import com.gserver.resource.resolver.impl.XlsResolver;
 
+public class ResolverManager extends AbstractIdleService {
 
-public class ResolverManager {
+	public static volatile boolean running = false;
 
 	public static ResolverManager instance = new ResolverManager();
-	private static ConcurrentMap<String, ResourceResolver> map = Maps.newConcurrentMap();
-
-	static {
-		try {
-			TxtResolver.class.newInstance();
-			XlsResolver.class.newInstance();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		}
-	}
+	private Map<String, ResourceResolver> map = Maps.newConcurrentMap();
 
 	private ResolverManager() {
-
+		super();
 	}
 
-	public static ResolverManager getInstance() {
+	public final static ResolverManager getInstance() {
 		return instance;
 	}
 
@@ -37,6 +28,19 @@ public class ResolverManager {
 
 	public ResourceResolver getResourceResolver(String key) {
 		return map.get(key);
+	}
+
+	@Override
+	protected void shutDown() throws Exception {
+		map.clear();
+		running = false;
+	}
+
+	@Override
+	protected void startUp() throws Exception {
+		TxtResolver.class.newInstance();
+		XlsResolver.class.newInstance();
+		running = true;
 	}
 
 }

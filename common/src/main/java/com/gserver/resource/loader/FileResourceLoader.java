@@ -139,7 +139,7 @@ public class FileResourceLoader implements ResourceLoader {
 			Class<? extends IResourceMark> clazz = (Class<? extends IResourceMark>) Class.forName(name, false, FileResourceLoader.class.getClassLoader());
 			List<? extends IResourceMark> resolve = resolver.resolve(clazz, file.toFile());
 			for (IResourceMark data : resolve) {
-				ResourceManager.getManager().put(data);
+				ResourceManager.getInstance().put(data);
 			}
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
