@@ -12,8 +12,6 @@ import com.google.common.util.concurrent.AbstractIdleService;
 
 public class ResourceManager extends AbstractIdleService {
 
-	private final static ThreadLocal<Class<?>> choosePool = new ThreadLocal<Class<?>>();
-
 	private static ResourceManager instance = new ResourceManager();
 
 	private ResourceManager() {
@@ -26,15 +24,9 @@ public class ResourceManager extends AbstractIdleService {
 
 	private final Table<Class<? extends IResourceMark>, Integer, IResourceMark> dataById = HashBasedTable.create();
 
-	public ResourceManager getPool(Class<? extends IResourceMark> type) {
-		choosePool.set(type);
-		return this;
-	}
-
-	public <T extends IResourceMark> T getById(int id) {
-		Class<?> cls = choosePool.get();
+	public <T extends IResourceMark> T getById(Class<? extends IResourceMark> type, int id) {
 		@SuppressWarnings("unchecked")
-		T iResourceMark = (T) dataById.get(cls, id);
+		T iResourceMark = (T) dataById.get(type, id);
 		return iResourceMark;
 	}
 
@@ -57,9 +49,7 @@ public class ResourceManager extends AbstractIdleService {
 		keyDic.put(resource.getClass(), key, multiset);
 	}
 
-	@SuppressWarnings("unchecked")
-	public <T> Collection<IResourceMark> getByKey(T key) {
-		Class<?> cls = choosePool.get();
+	public <T> Collection<IResourceMark> getByKey(Class<? extends IResourceMark> cls, T key) {
 		return keyDic.row((Class<? extends IResourceMark>) cls).get(key);
 	}
 

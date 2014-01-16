@@ -30,7 +30,7 @@ public class OrCondition extends BaseCondition {
 		List<ConditionData> list = new ArrayList<ConditionData>();
 		int length = codes.length;
 		for (int i = 0; i < length; i++) {
-			ConditionData data = ResourceManager.getInstance().getPool(ConditionData.class).getById(Integer.parseInt(codes[i]));
+			ConditionData data = ResourceManager.getInstance().getById(ConditionData.class, Integer.parseInt(codes[i]));
 			ICondition condition = ConditionManager.instance().getCondition(data.getType());
 			if (condition == null) {
 				System.out.println("condition(" + data.getType() + ")不存在!");

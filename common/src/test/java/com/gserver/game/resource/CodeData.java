@@ -26,7 +26,7 @@ public class CodeData implements IResourceMark {
 	@Override
 	public void handle() {
 		System.out.println("CodeData: " + this);
-		ResourceManager.getInstance().getPool(CodeData.class).putKey(getMac(), this);
+		ResourceManager.getInstance().putKey(getMac(), this);
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class CodeData implements IResourceMark {
 
 	@Override
 	public void checkResource() {
-		
+
 	}
 
 }

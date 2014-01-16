@@ -11,7 +11,7 @@ import com.gserver.resource.ResourceManager;
 
 public class AndCondition extends BaseCondition {
 
-	public <T>Boolean check(T go, ConditionData data) {
+	public <T> Boolean check(T go, ConditionData data) {
 		String[] str = data.getParams();
 		List<ConditionData> list = init(str);
 		int size = list.size();
@@ -34,7 +34,7 @@ public class AndCondition extends BaseCondition {
 		int[] codes = stringToIntArray(str);
 		int length = codes.length;
 		for (int i = 0; i < length; i++) {
-			ConditionData data = ResourceManager.getInstance().getPool(ConditionData.class).getById(codes[i]);
+			ConditionData data = ResourceManager.getInstance().getById(ConditionData.class, codes[i]);
 			ICondition condition = ConditionManager.instance().getCondition(data.getType());
 			if (condition == null) {
 				System.out.println("condition(" + data.getType() + ")不存在!");

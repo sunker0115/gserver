@@ -31,7 +31,7 @@ public class NoCondition extends BaseCondition {
 
 	public List<ConditionData> init(String... str) {
 		List<ConditionData> list = new ArrayList<ConditionData>();
-		ConditionData data = ResourceManager.getInstance().getPool(ConditionData.class).getById(Integer.parseInt(str[0]));
+		ConditionData data = ResourceManager.getInstance().getById(ConditionData.class, Integer.parseInt(str[0]));
 		ICondition condition = ConditionManager.instance().getCondition(data.getType());
 		if (condition == null) {
 			System.out.println("condition(" + data.getType() + ")不存在!");
