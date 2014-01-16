@@ -1,6 +1,6 @@
-package com.gserver.game.condition;
+package com.gserver.condition;
 
-import com.gserver.game.resource.ConditionData;
+import com.gserver.resource.ConditionData;
 
 public interface ICondition {
 	public short getType();

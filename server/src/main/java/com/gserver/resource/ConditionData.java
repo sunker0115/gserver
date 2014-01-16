@@ -1,4 +1,4 @@
-package com.gserver.game.resource;
+package com.gserver.resource;
 
 import java.util.Arrays;
 

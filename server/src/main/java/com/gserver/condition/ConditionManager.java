@@ -1,12 +1,12 @@
-package com.gserver.game.condition;
+package com.gserver.condition;
 
 import java.util.Map;
 
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AbstractIdleService;
-import com.gserver.game.condition.impl.AndCondition;
-import com.gserver.game.condition.impl.NoCondition;
-import com.gserver.game.condition.impl.OrCondition;
+import com.gserver.condition.impl.AndCondition;
+import com.gserver.condition.impl.NoCondition;
+import com.gserver.condition.impl.OrCondition;
 
 public class ConditionManager extends AbstractIdleService {
 
