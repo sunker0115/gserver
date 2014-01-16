@@ -4,10 +4,8 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
@@ -15,17 +13,18 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.Lists;
 import com.gserver.file.monitor.FileChangeListener;
 import com.gserver.file.monitor.FolderWatchers;
 import com.gserver.resource.IResourceMark;
@@ -45,7 +44,9 @@ public class FileResourceLoader implements ResourceLoader {
 	/**
 	 * f2c.properties的文件名。
 	 */
-	protected String F2C_PROPERTIES = FileResourceLoader.class.getResource("").getPath().substring(1) + "f2c.properties";
+	protected String F2C_PROPERTIES = "f2c.properties";
+
+	public static List<String> paths = Lists.newArrayList();
 
 	/**
 	 * 重新加载配置。
@@ -55,13 +56,15 @@ public class FileResourceLoader implements ResourceLoader {
 	protected void configF2C() {
 		final Properties properties = new Properties();
 		try {
-            Reader r = new FileReader(new File(F2C_PROPERTIES));
-            try {
-                properties.load(r);
-            } finally {
-                r.close();
-            }
-        } catch (IOException e) {
+			// Reader r = new FileReader(new File(F2C_PROPERTIES));
+			InputStream in = FileResourceLoader.class.getResourceAsStream(F2C_PROPERTIES);
+			try {
+				properties.load(in);
+			} finally {
+				in.close();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
 			logger.error("The f2c properties file <{}> is missing!", F2C_PROPERTIES);
 		}
 		Enumeration<?> propertyNames = properties.propertyNames();
@@ -75,7 +78,7 @@ public class FileResourceLoader implements ResourceLoader {
 	/**
 	 * 资源类的包名。
 	 */
-	protected static final String RESOURCE_PACKAGE = "com.gserver.game.resource";
+	protected static final String RESOURCE_PACKAGE = "com.gserver.resource";
 
 	public FileResourceLoader() {
 		super();
@@ -88,6 +91,7 @@ public class FileResourceLoader implements ResourceLoader {
 			if (root == null || root.length == 0) {
 				return;
 			}
+			paths.addAll(Arrays.asList(root));
 			for (String otherRoot : root) {
 				Path path = Paths.get(otherRoot);
 				configAndLoad(path);
@@ -116,7 +120,7 @@ public class FileResourceLoader implements ResourceLoader {
 		@Override
 		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 			boolean directory = Files.isDirectory(file);
-			if (!directory) {				
+			if (!directory) {
 				loadFile(file);
 			}
 			return FileVisitResult.CONTINUE;
@@ -127,13 +131,14 @@ public class FileResourceLoader implements ResourceLoader {
 		String ext = com.google.common.io.Files.getFileExtension(file.getName(file.getNameCount() - 1).toString());
 
 		ResourceResolver resolver = globalInstance.getResourceResolver(ext);
-		String name = f2cCache.getIfPresent(file.getName(file.getNameCount() - 1).toString());
+		String string = file.toString();
+		String baseFilePath = getBaseFilePath(string);
+		String name = f2cCache.getIfPresent(baseFilePath);
 		if (name == null) {
-			name = RESOURCE_PACKAGE + '.' + StringUtils.capitalize(com.google.common.io.Files.getNameWithoutExtension(file.getName(file.getNameCount() - 1).toString()));
+			name = RESOURCE_PACKAGE + baseFilePath.replace("\\", ".").replace("/", ".");
+			name = name.replaceAll("." + ext, "");
 		}
-		if (logger.isInfoEnabled()) {
-			logger.info("Resource {} is visited.", name);
-		}
+		logger.info("Resource {} is visited.", name);
 		try {
 			@SuppressWarnings("unchecked")
 			Class<? extends IResourceMark> clazz = (Class<? extends IResourceMark>) Class.forName(name, false, FileResourceLoader.class.getClassLoader());
@@ -144,6 +149,17 @@ public class FileResourceLoader implements ResourceLoader {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private static String getBaseFilePath(String string) {
+		String baseFilePath = "";
+		for (String path : paths) {
+			if (string.startsWith(path)) {
+				baseFilePath = string.substring(path.length());
+				break;
+			}
+		}
+		return baseFilePath;
 	}
 
 }
