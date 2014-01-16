@@ -1,4 +1,4 @@
-package com.gserver.condition;
+package com.gserver.game.condition;
 
 import com.gserver.game.resource.ConditionData;
 

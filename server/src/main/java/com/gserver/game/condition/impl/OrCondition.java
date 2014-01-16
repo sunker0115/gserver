@@ -1,11 +1,11 @@
-package com.gserver.condition.impl;
+package com.gserver.game.condition.impl;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.gserver.condition.BaseCondition;
-import com.gserver.condition.ConditionManager;
-import com.gserver.condition.ICondition;
+import com.gserver.game.condition.BaseCondition;
+import com.gserver.game.condition.ConditionManager;
+import com.gserver.game.condition.ICondition;
 import com.gserver.game.resource.ConditionData;
 import com.gserver.resource.ResourceManager;
 

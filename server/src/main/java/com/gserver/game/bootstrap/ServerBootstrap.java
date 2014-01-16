@@ -9,7 +9,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.Service;
 import com.google.common.util.concurrent.ServiceManager;
 import com.google.common.util.concurrent.ServiceManager.Listener;
-import com.gserver.condition.ConditionManager;
+import com.gserver.game.condition.ConditionManager;
 import com.gserver.game.resource.CodeData;
 import com.gserver.game.resource.ConditionData;
 import com.gserver.resource.IResourceMark;
