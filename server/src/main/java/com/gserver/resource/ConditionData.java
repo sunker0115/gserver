@@ -12,8 +12,8 @@ import com.gserver.resource.IResourceMark;
  */
 public class ConditionData implements IResourceMark {
 
-	/** ID */
-	private int id;
+	/** code */
+	private int code;
 	/** 说明 */
 	private String desc;
 	/** 类型 */
@@ -25,12 +25,12 @@ public class ConditionData implements IResourceMark {
 	/** 参数 */
 	private String[] params;
 
-	public int getId() {
-		return id;
+	public int getCode() {
+		return code;
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	public void setCode(int code) {
+		this.code = code;
 	}
 
 	public short getType() {
@@ -81,8 +81,8 @@ public class ConditionData implements IResourceMark {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("ConditionData [id=");
-		builder.append(id);
+		builder.append("ConditionData [code=");
+		builder.append(code);
 		builder.append(", desc=");
 		builder.append(desc);
 		builder.append(", type=");

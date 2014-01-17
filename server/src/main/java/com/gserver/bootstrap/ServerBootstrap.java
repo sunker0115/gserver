@@ -57,7 +57,7 @@ public class ServerBootstrap {
 
 		manager.startAsync().awaitHealthy();
 		ResourceLoader resourceLoader = new FileResourceLoader();
-		resourceLoader.load("./res");
+		resourceLoader.load(".\\res");
 
 		ResourceManager resourceManager = ResourceManager.getInstance();
 		ConditionData data = resourceManager.getById(ConditionData.class, 1);
