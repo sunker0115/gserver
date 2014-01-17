@@ -31,7 +31,7 @@ public class ResourceManager extends AbstractIdleService {
 	}
 
 	public void put(IResourceMark resource) {
-		dataById.put(resource.getClass(), resource.getId(), resource);
+		dataById.put(resource.getClass(), resource.getCode(), resource);
 	}
 
 	private final Table<Class<? extends IResourceMark>, Object, Multiset<IResourceMark>> keyDic = HashBasedTable.create();
