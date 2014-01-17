@@ -12,7 +12,8 @@ import com.gserver.resource.ResourceManager;
 public class OrCondition extends BaseCondition {
 
 	public <T> Boolean check(T go, ConditionData data) {
-		List<ConditionData> list = init(data.getParams());
+		int[] codes = data.getParams();
+		List<ConditionData> list = init(codes);
 		int size = list.size();
 		for (int i = 0; i < size; i++) {
 			Boolean check = ConditionManager.instance().getCondition(data.getType()).check(go, data);
@@ -26,11 +27,11 @@ public class OrCondition extends BaseCondition {
 		return false;
 	}
 
-	public List<ConditionData> init(String... codes) {
+	public List<ConditionData> init(int... codes) {
 		List<ConditionData> list = new ArrayList<ConditionData>();
 		int length = codes.length;
 		for (int i = 0; i < length; i++) {
-			ConditionData data = ResourceManager.getInstance().getById(ConditionData.class, Integer.parseInt(codes[i]));
+			ConditionData data = ResourceManager.getInstance().getById(ConditionData.class, codes[i]);
 			ICondition condition = ConditionManager.instance().getCondition(data.getType());
 			if (condition == null) {
 				System.out.println("condition(" + data.getType() + ")不存在!");

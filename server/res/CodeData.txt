@@ -1,5 +1,5 @@
-/id	mac
-;id	mac
+/code	mac
+;code	mac
 1	0c771a45397a
 2	ec852f5a4dcb
 3	50ead604b4d2

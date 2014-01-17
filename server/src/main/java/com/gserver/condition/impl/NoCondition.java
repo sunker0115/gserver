@@ -12,7 +12,8 @@ import com.gserver.resource.ResourceManager;
 public class NoCondition extends BaseCondition {
 
 	public <T> Boolean check(T go, ConditionData data) {
-		List<ConditionData> list = init(data.getParams());
+		int[] codes = data.getParams();
+		List<ConditionData> list = init(codes);
 		for (ConditionData condition : list) {
 			Boolean check = ConditionManager.instance().getCondition(data.getType()).check(go, condition);
 			if (check == null) {
@@ -29,9 +30,9 @@ public class NoCondition extends BaseCondition {
 		return NO;
 	}
 
-	public List<ConditionData> init(String... str) {
+	public List<ConditionData> init(int... codes) {
 		List<ConditionData> list = new ArrayList<ConditionData>();
-		ConditionData data = ResourceManager.getInstance().getById(ConditionData.class, Integer.parseInt(str[0]));
+		ConditionData data = ResourceManager.getInstance().getById(ConditionData.class, codes[0]);
 		ICondition condition = ConditionManager.instance().getCondition(data.getType());
 		if (condition == null) {
 			System.out.println("condition(" + data.getType() + ")不存在!");

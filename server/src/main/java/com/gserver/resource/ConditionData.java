@@ -23,7 +23,7 @@ public class ConditionData implements IResourceMark {
 	/** 影响 */
 	private int effect;
 	/** 参数 */
-	private String[] params;
+	private int[] params;
 
 	public int getCode() {
 		return code;
@@ -57,11 +57,11 @@ public class ConditionData implements IResourceMark {
 		this.effect = effect;
 	}
 
-	public String[] getParams() {
+	public int[] getParams() {
 		return params;
 	}
 
-	public void setParams(String[] params) {
+	public void setParams(int[] params) {
 		this.params = params;
 	}
 

@@ -12,8 +12,8 @@ import com.gserver.resource.ResourceManager;
 public class AndCondition extends BaseCondition {
 
 	public <T> Boolean check(T go, ConditionData data) {
-		String[] str = data.getParams();
-		List<ConditionData> list = init(str);
+		int[] codes = data.getParams();
+		List<ConditionData> list = init(codes);
 		int size = list.size();
 		boolean flag = true;
 		for (int i = 0; i < size; i++) {
@@ -29,9 +29,8 @@ public class AndCondition extends BaseCondition {
 		return returnValue(flag, data);
 	}
 
-	private List<ConditionData> init(String... str) {
+	private List<ConditionData> init(int... codes) {
 		List<ConditionData> list = new ArrayList<ConditionData>();
-		int[] codes = stringToIntArray(str);
 		int length = codes.length;
 		for (int i = 0; i < length; i++) {
 			ConditionData data = ResourceManager.getInstance().getById(ConditionData.class, codes[i]);
