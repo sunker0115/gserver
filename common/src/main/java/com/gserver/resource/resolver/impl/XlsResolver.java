@@ -4,17 +4,21 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Cell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.gserver.resource.IResourceMark;
 import com.gserver.resource.resolver.RowBasedFileResolver;
@@ -36,15 +40,17 @@ public class XlsResolver extends RowBasedFileResolver<HSSFCell> {
 			String sheetName = sheet.getSheetName();
 			if (logger.isInfoEnabled())
 				logger.info((new StringBuilder("\u6B63\u5728\u52A0\u8F7D\u9875\u540D\u4E3A :")).append(sheetName).toString());
-			for (int i = 0; i <= sheet.getLastRowNum(); ++i) {// 行
+			int lastRowNum = sheet.getLastRowNum();
+			for (int i = 0; i <= lastRowNum; ++i) {// 行
 				HSSFRow row = sheet.getRow(i);
 				// List<CLASS_T> row = Lists.newArrayList();
 				returnList.add(Lists.<HSSFCell> newArrayList());
-				for (int j = 0; j <= row.getLastCellNum(); ++j) {
+				short lastCellNum = row.getLastCellNum();
+				for (int j = 0; j < lastCellNum; ++j) {
 					HSSFCell cell = row.getCell(j);
-					if (cell == null) {
-						continue;
-					}
+					// if (cell == null) {
+					// continue;
+					// }
 					returnList.get(i).add(cell);
 				}
 			}
@@ -59,7 +65,11 @@ public class XlsResolver extends RowBasedFileResolver<HSSFCell> {
 		Assert.notNull(row);
 		List<String> ts = Lists.newArrayList();
 		for (HSSFCell cell : row) {
-			ts.add(cell.getStringCellValue().trim());
+			if (cell == null) {
+				ts.add(null);
+			} else {
+				ts.add(cell.getStringCellValue().trim());
+			}
 		}
 		return ts;
 	}
@@ -69,56 +79,134 @@ public class XlsResolver extends RowBasedFileResolver<HSSFCell> {
 		Assert.notNull(attributeNames, "attributeNames is null.");
 		Assert.notNull(row, "row is null.");
 		Assert.isTrue(row.size() == attributeNames.size());
-		for (int i = 0; i < row.size(); i++) {
-			String fieldName = attributeNames.get(i);
-			Field field = ReflectionUtils.getDeclaredField(obj, fieldName);
-			if (field != null) {
-				setPropertyValue(obj, row.get(i), field);
+
+		String fieldName = null;
+		for (int iterator = 0, range_begin = -1, range_end = -1; iterator < row.size(); ++iterator) {
+			String attrName = null;
+			if (iterator < attributeNames.size()) {
+				attrName = attributeNames.get(iterator);
+			}
+			if (!Strings.isNullOrEmpty(attrName)) {
+				fieldName = attrName;
+				range_begin = iterator;
+				range_end = iterator + 1;
+			} else {// 数组后续空格
+				range_end = iterator + 1;
+			}
+			if (iterator < attributeNames.size() - 1 && !Strings.isNullOrEmpty(attributeNames.get(iterator + 1)) || iterator == row.size() - 1) {
+				fillOneField(obj, fieldName, row, range_begin, range_end);
 			}
 		}
+
 		return true;
 	}
 
-	private void setPropertyValue(Object obj, HSSFCell cell, Field field) {
-		Class<?> type = field.getType();
-		String fieldName = field.getName();
-		if (cell == null || cell.toString().length() == 0) {
-			return;
-		}
-		if (type == Integer.class || type == int.class) {
-			double value = cell.getNumericCellValue();
-			ReflectionUtils.setFieldValue(obj, fieldName, (int) value);
-		} else if (type == Float.class || type == float.class) {
-			double value = cell.getNumericCellValue();
-			ReflectionUtils.setFieldValue(obj, fieldName, (float) value);
-		} else if (type == Short.class || type == short.class) {
-			double value = cell.getNumericCellValue();
-			ReflectionUtils.setFieldValue(obj, fieldName, (short) value);
-		} else if (type == Double.class || type == double.class) {
-			double value = cell.getNumericCellValue();
-			ReflectionUtils.setFieldValue(obj, fieldName, value);
-		} else if (type == Long.class || type == long.class) {
-			double value = cell.getNumericCellValue();
-			ReflectionUtils.setFieldValue(obj, fieldName, (long) value);
-		} else if (type == String.class) {
-			String value = checkString(cell.toString());
-			ReflectionUtils.setFieldValue(obj, fieldName, value);
-		} else if (type == String[].class) {
-			String value = checkString(cell.toString());
-			ReflectionUtils.setFieldValue(obj, fieldName, value.split(","));
-		} else if (type == int[].class || type == Integer[].class) {
-			String[] value = cell.toString().split(",");
-			int[] arr = strArrToIntArr(value);
-			ReflectionUtils.setFieldValue(obj, fieldName, arr);
+	/**
+	 * 设置一个字段的值，不成功则忽略。
+	 * 
+	 * @param obj
+	 *            对象
+	 * @param attrName
+	 *            字段名
+	 * @param row
+	 *            数据来源行
+	 * @param range_begin
+	 *            起始位置（包含）
+	 * @param range_end
+	 *            结束位置（不包含）
+	 */
+	private <CLASS_T extends IResourceMark> void fillOneField(CLASS_T obj, String attrName, List<HSSFCell> row, int range_begin, int range_end) {
+		try {
+			Field field = ReflectionUtils.getDeclaredField(obj, attrName);
+			if (field != null) {
+				Class<?> type = field.getType();
+				field.setAccessible(true);
+				if (type.equals(int.class) || type.equals(Integer.class)) {
+					field.set(obj, (int) row.get(range_begin).getNumericCellValue());
+				} else if (type.equals(double.class)) {
+					field.set(obj, Double.valueOf(row.get(range_begin).getNumericCellValue()));
+				} else if (type.equals(short.class)) {
+					field.set(obj, (short) row.get(range_begin).getNumericCellValue());
+				} else if (type.equals(byte.class)) {
+					field.set(obj, (byte) row.get(range_begin).getNumericCellValue());
+				} else if (type.equals(float.class)) {
+					field.set(obj, (float) row.get(range_begin).getNumericCellValue());
+				} else if (type.equals(long.class)) {
+					field.set(obj, (long) row.get(range_begin).getNumericCellValue());
+				} else if (type.equals(int[].class)) {
+					field.set(obj, parseIntArray(row.subList(range_begin, range_end)));
+				} else if (type.equals(Integer[].class)) {
+					field.set(obj, parseIntegerArray(row.subList(range_begin, range_end)));
+				} else if (type.equals(String[].class)) {
+					field.set(obj, parseStringArray(row.subList(range_begin, range_end)));
+				} else {
+					field.set(obj, row.get(range_begin).getStringCellValue().replace('^', '\n').replace('~', ' '));
+				}
+			}
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e2) {
 		}
 	}
 
-	private int[] strArrToIntArr(String[] value) {
-		int arr[] = new int[value.length];
-		for (int i = 0; i < value.length; i++) {
-			arr[i] = Integer.parseInt(value[i]);
+	private int[] parseIntArray(List<HSSFCell> values) {
+		int[] r = new int[values.size()];
+		int length = 0;
+		for (int j = 0; j < r.length; ++j) {
+			HSSFCell hssfCell = values.get(j);
+			hssfCell.setCellType(Cell.CELL_TYPE_STRING);
+			String stringCellValue = hssfCell.getStringCellValue();
+			if (StringUtils.isNotBlank(stringCellValue)) {
+				r[j] = Integer.valueOf(stringCellValue);
+				length += 1;
+			}
 		}
-		return arr;
+		if (length == r.length) {
+			return r;
+		} else {
+			// 去0操作
+			return Arrays.copyOf(r, length);
+		}
+	}
+
+	private Integer[] parseIntegerArray(List<HSSFCell> values) {
+		Integer[] r = new Integer[values.size()];
+		int length = 0;
+		for (int j = 0; j < r.length; ++j) {
+			HSSFCell hssfCell = values.get(j);
+			hssfCell.setCellType(Cell.CELL_TYPE_STRING);
+			String stringCellValue = hssfCell.getStringCellValue();
+			if (StringUtils.isNotBlank(stringCellValue)) {
+				r[j] = Integer.valueOf(stringCellValue);
+				length += 1;
+			}
+		}
+		if (length == r.length) {
+			return r;
+		} else {
+			// 去0操作
+			return Arrays.copyOf(r, length);
+		}
+	}
+
+	private String[] parseStringArray(List<HSSFCell> values) {
+		String[] r = new String[values.size()];
+		int length = 0;
+		for (int j = 0; j < r.length; ++j) {
+			HSSFCell hssfCell = values.get(j);
+			hssfCell.setCellType(Cell.CELL_TYPE_STRING);
+			String stringCellValue = hssfCell.getStringCellValue();
+			if (StringUtils.isNotBlank(stringCellValue)) {
+				r[j] = stringCellValue;
+				length += 1;
+			}
+		}
+		if (length == r.length) {
+			return r;
+		} else {
+			// 去null操作
+			return Arrays.copyOf(r, length);
+		}
 	}
 
 	private String checkString(String value) {
